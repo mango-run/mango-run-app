@@ -4,7 +4,7 @@ export default function useStore(
   key: string,
   initialValue?: string
 ): [string, (value: string) => void] {
-  const store = window.electron.store
+  const { store } = window.electron
   const defaultValue: string = store.get(key) ?? initialValue
   const [storedValue, setStoredValue] = useState(defaultValue)
 

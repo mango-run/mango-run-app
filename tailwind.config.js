@@ -23,5 +23,5 @@ module.exports = {
   },
   variants: {},
   plugins: [],
-  purge: ['./src/**/*.tsx'],
+  content: ['./src/renderer/**/*.{js,jsx,ts,tsx,ejs}'],
 }

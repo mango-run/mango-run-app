@@ -16,8 +16,8 @@ declare global {
   interface Window {
     electron: {
       store: {
-        get: (key: string) => any
-        set: (key: string, val: any) => void
+        get: (key: string) => string
+        set: (key: string, value: string) => void
       }
     }
   }
