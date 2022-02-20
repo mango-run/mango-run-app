@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #f2c94c;
+  --primary-dark: #e4af11;
+  --red: #f84638;
+  --red-dark: #c7251a;
+  --red-muted: #6d2832;
+  --green: #afd803;
+  --green-dark: #91b503;
+  --green-muted: #49601b;
+  --orange: #ff9c24;
+  --bg-1: #141026;
+  --bg-2: #1d1832;
+  --bg-3: #2a2440;
+  --bg-4: #37324d;
+  --fg-1: #e5e3ec;
+  --fg-2: #d2cede;
+  --fg-3: #c1bed3;
+  --fg-4: #706c81;
+}
+
+html {
+  background: var(--bg-1);
+  color: var(--fg-1);
+}
+
+input, button {
+  outline: none;
+}

@@ -1,4 +1,5 @@
 import { MemoryRouter as Router, Route, Routes } from 'react-router-dom'
+import './App.css'
 import Home from './pages/Home'
 
 export default function App() {
@@ -9,4 +10,15 @@ export default function App() {
       </Routes>
     </Router>
   )
+}
+
+declare global {
+  interface Window {
+    electron: {
+      store: {
+        get: (key: string) => any
+        set: (key: string, val: any) => void
+      }
+    }
+  }
 }

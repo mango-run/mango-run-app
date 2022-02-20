@@ -6,6 +6,7 @@ import path from 'path'
 import webpack from 'webpack'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+// @ts-ignore
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import { merge } from 'webpack-merge'
@@ -63,7 +64,12 @@ const configuration: webpack.Configuration = {
       },
       {
         test: /\.s?(a|c)ss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'sass-loader',
+          'postcss-loader',
+        ],
         exclude: /\.module\.s?(c|a)ss$/,
       },
       // Fonts

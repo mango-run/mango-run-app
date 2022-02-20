@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
+import Store from 'electron-store'
 
 export default class AppUpdater {
   constructor() {
@@ -24,12 +25,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
-  console.log(msgTemplate(arg))
-  event.reply('ipc-example', msgTemplate('pong'))
-})
+const store = new Store()
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
@@ -68,6 +64,8 @@ const createWindow = async () => {
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths)
   }
+
+  app.dock.setIcon(getAssetPath('icon.png'))
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -133,3 +131,16 @@ app
     })
   })
   .catch(console.log)
+
+// IPC listener
+ipcMain.on('ipc-example', async (event, arg) => {
+  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
+  console.log(msgTemplate(arg))
+  event.reply('ipc-example', msgTemplate('pong'))
+})
+ipcMain.on('electron-store-get', async (event, value) => {
+  event.returnValue = store.get(value)
+})
+ipcMain.on('electron-store-set', async (_, key, value) => {
+  store.set(key, value)
+})
