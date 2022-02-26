@@ -15,7 +15,7 @@ import baseConfig from './webpack.config.base'
 import webpackPaths from './webpack.paths'
 import checkNodeEnv from '../scripts/check-node-env'
 import deleteSourceMaps from '../scripts/delete-source-maps'
-import { postcssLoader } from './webpack.config.common'
+import { getLessLoader, postcssLoader } from './webpack.loaders'
 
 checkNodeEnv('production')
 deleteSourceMaps()
@@ -23,8 +23,8 @@ deleteSourceMaps()
 const devtoolsConfig =
   process.env.DEBUG_PROD === 'true'
     ? {
-        devtool: 'source-map',
-      }
+      devtool: 'source-map',
+    }
     : {}
 
 const configuration: webpack.Configuration = {
@@ -73,6 +73,14 @@ const configuration: webpack.Configuration = {
           postcssLoader,
         ],
         exclude: /\.module\.s?(c|a)ss$/,
+      },
+      {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          getLessLoader(true),
+        ],
       },
       // Fonts
       {

@@ -9,7 +9,7 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 import baseConfig from './webpack.config.base'
 import webpackPaths from './webpack.paths'
 import checkNodeEnv from '../scripts/check-node-env'
-import { postcssLoader } from './webpack.config.common'
+import { getLessLoader, postcssLoader } from './webpack.loaders'
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'production') {
 const port = process.env.PORT || 1212
 const manifest = path.resolve(webpackPaths.dllPath, 'renderer.json')
 const requiredByDLLConfig = module.parent!.filename.includes(
-  'webpack.config.renderer.dev.dll'
+  'webpack.config.renderer.dev.dll',
 )
 
 /**
@@ -32,8 +32,8 @@ if (
 ) {
   console.log(
     chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
-    )
+      'The DLL files are missing. Sit back while we build them for you with "npm run build-dll"',
+    ),
   )
   execSync('npm run postinstall')
 }
@@ -84,6 +84,14 @@ const configuration: webpack.Configuration = {
         use: ['style-loader', 'css-loader', 'sass-loader', postcssLoader],
         exclude: /\.module\.s?(c|a)ss$/,
       },
+      {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          getLessLoader(false),
+        ],
+      },
       // Fonts
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
@@ -100,12 +108,12 @@ const configuration: webpack.Configuration = {
     ...(requiredByDLLConfig
       ? []
       : [
-          new webpack.DllReferencePlugin({
-            context: webpackPaths.dllPath,
-            manifest: require(manifest),
-            sourceType: 'var',
-          }),
-        ]),
+        new webpack.DllReferencePlugin({
+          context: webpackPaths.dllPath,
+          manifest: require(manifest),
+          sourceType: 'var',
+        }),
+      ]),
 
     new webpack.NoEmitOnErrorsPlugin(),
 
