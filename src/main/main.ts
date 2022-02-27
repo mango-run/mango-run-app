@@ -12,9 +12,9 @@ import path from 'path'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
-import Store from 'electron-store'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
+import ipcStore from './ipc/store'
 
 export default class AppUpdater {
   constructor() {
@@ -25,7 +25,6 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null
-const store = new Store()
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support')
@@ -138,9 +137,5 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg))
   event.reply('ipc-example', msgTemplate('pong'))
 })
-ipcMain.on('electron-store-get', async (event, value) => {
-  event.returnValue = store.get(value)
-})
-ipcMain.on('electron-store-set', async (_, key, value) => {
-  store.set(key, value)
-})
+
+ipcStore.initMain(ipcMain)

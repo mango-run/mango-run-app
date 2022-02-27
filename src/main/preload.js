@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
+const { STORE_SET, STORE_SET } = require('../ipc/channels')
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
@@ -22,10 +23,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
   store: {
     get(value) {
-      return ipcRenderer.sendSync('electron-store-get', value)
+      return ipcRenderer.sendSync(STORE_GET, value)
     },
-    set(property, value) {
-      ipcRenderer.send('electron-store-set', property, value)
+    set(key, value) {
+      ipcRenderer.send(STORE_SET, key, value)
     },
   },
 })
