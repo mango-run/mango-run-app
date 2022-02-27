@@ -1,5 +1,5 @@
 {
-  "name": "mango-run-app",
+  "name": "mango-run-app-release",
   "version": "0.1.0",
   "description": "",
   "main": "./dist/main/main.js",
@@ -8,6 +8,8 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
     "postinstall": "npm run electron-rebuild && npm run link-modules"
   },
-  "dependencies": {},
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.35.1"
+  }
 }

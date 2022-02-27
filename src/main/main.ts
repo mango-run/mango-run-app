@@ -65,7 +65,7 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths)
   }
 
-  app.dock.setIcon(getAssetPath('icon.png'))
+  app.dock?.setIcon(getAssetPath('icon.png'))
 
   mainWindow = new BrowserWindow({
     show: false,
