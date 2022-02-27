@@ -195,6 +195,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@funcblock/dapp-sdk": "^0.1.15",
     "antd": "^4.18.5",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.4",

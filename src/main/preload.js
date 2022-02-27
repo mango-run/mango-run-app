@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electron', {
   ipc: {
     get(channel, payload) {
-      return ipcRenderer.sendSync(channel, value)
+      return ipcRenderer.sendSync(channel, payload)
     },
     set(channel, payload) {
       ipcRenderer.send(channel, payload)

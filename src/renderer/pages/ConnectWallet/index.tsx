@@ -1,12 +1,11 @@
 import { useCallback, useState } from 'react'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
-import useStore from '../../hooks/useStore'
-import useSolana from 'renderer/hooks/useSolana'
+import { useSolanaContext } from 'renderer/contexts/solana'
 
 // TODO: migration for storage
 export default function ConnectWallet() {
-  const { wallet, connectWallet } = useSolana()
+  const { wallet, connectWallet } = useSolanaContext()
   const [input, setInput] = useState('')
 
   const onSubmit = useCallback(() => {
@@ -15,7 +14,7 @@ export default function ConnectWallet() {
 
   return (
     <div className="flex flex-row items-center justify-center w-full">
-      <div className="w-80 mt-20 bg-2 rounded px-4 py-4 text-sm">
+      <div className="w-96 mt-20 bg-bg2 rounded px-4 py-4 text-sm">
         <Input
           className="mb-4"
           value={input}
@@ -24,7 +23,10 @@ export default function ConnectWallet() {
         <Button className="mb-4" onClick={onSubmit}>
           Import Private Key
         </Button>
-        <div>Current wallet: {wallet}</div>
+        <div>
+          <div className='mb-1 opacity-75'>Current wallet:</div>
+          <div>{wallet}</div>
+        </div>
       </div>
     </div>
   )

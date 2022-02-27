@@ -2,7 +2,7 @@ import {Input, Button} from "antd"
 export default function Dashboard() {
   return (
     <div className="flex flex-row items-stretch justify-center w-full px-8 mt-8">
-      <div className="bg-2 w-3/5 px-8 pb-8">
+      <div className="bg-bg2 w-3/5 px-8 pb-8">
         <div className="mt-8">Edit Gri Trading Bot</div>
         <div>
           <div className="px-8 mt-6">
@@ -31,7 +31,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <div className="w-2/5 border bg-2 ml-8">
+      <div className="w-2/5 border bg-bg2 ml-8">
         <div className="flex items-center border-b">
           <div className="flex-1 text-center py-2 border-r cursor-pointer hover:text-primary">Running</div>
           <div className="flex-1 text-center py-2 cursor-pointer hover:text-primary">History</div>
