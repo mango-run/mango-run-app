@@ -7,6 +7,8 @@ const themeColors = {
   fg2: 'var(--fg-2)',
   fg3: 'var(--fg-3)',
   fg4: 'var(--fg-4)',
+  red: 'var(--red)',
+  green: 'var(--green)',
 }
 
 module.exports = {
@@ -18,6 +20,8 @@ module.exports = {
     backgroundColor: {
       primary: 'var(--primary)',
       ...themeColors,
+      'button': 'var(--bg-button)',
+      'button-h': 'var(--bg-button-h)',
     },
     borderColor: {
       DEFAULT: 'var(--bg-3)',
@@ -31,6 +35,7 @@ module.exports = {
       full: '999999px',
     },
     boxShadow: {},
+    extend: {},
   },
   variants: {},
   plugins: [],

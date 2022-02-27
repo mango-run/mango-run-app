@@ -16,15 +16,15 @@
   --bg-2: #1d1832;
   --bg-3: #2a2440;
   --bg-4: #37324d;
+  --bg-button: #464063;
+  --bg-button-h: #524d6e;
   --fg-1: #e5e3ec;
   --fg-2: #d2cede;
   --fg-3: #c1bed3;
   --fg-4: #706c81;
-  --white: #ffffff;
-  --black: #000000;
 }
 
-html {
+html, body {
   background: var(--bg-1);
   color: var(--fg-1);
 }

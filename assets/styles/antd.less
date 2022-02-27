@@ -1,11 +1,12 @@
 @import '~antd/dist/antd.dark.less';
 
-@primary-color: #f2c94c;
-@body-background: #141026;
+@primary-color: #e4af11;
+@primary-color-hover: #f2c94c;
+@primary-color-active: #f2c94c;
 @input-border-color: #37324d;
 @input-hover-border-color: #706c81;
 
 .ant-input:focus, .ant-input-focused, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
-  border-color: #706c81;
+  border-color: @input-hover-border-color;
   box-shadow: none;
 }
