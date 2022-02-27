@@ -15,6 +15,7 @@ import log from 'electron-log'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import ipcStore from './ipc/store'
+import ipcSolana from './ipc/solana'
 
 export default class AppUpdater {
   constructor() {
@@ -139,3 +140,4 @@ ipcMain.on('ipc-example', async (event, arg) => {
 })
 
 ipcStore.initMain(ipcMain)
+ipcSolana.initMain(ipcMain)

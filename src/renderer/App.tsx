@@ -9,7 +9,7 @@ export default function App() {
   return (
     <>
       <Router>
-        <Header/>
+        <Header />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/connect-wallet" element={<ConnectWallet />} />
@@ -24,9 +24,11 @@ export default function App() {
 declare global {
   interface Window {
     electron: {
-      store: {
-        get: (key: string) => string
-        set: (key: string, value: string) => void
+      ipc: {
+        get: (channel: string, payload: any) => any,
+        set: (channel: string, payload: any) => void,
+        on: (channel: string, callback: (...params: any) => void) => void,
+        once: (channel: string, callback: (...params: any) => void) => void,
       }
     }
   }

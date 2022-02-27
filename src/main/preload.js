@@ -1,32 +1,18 @@
 const { contextBridge, ipcRenderer } = require('electron')
-const { STORE_SET, STORE_SET } = require('../ipc/channels')
 
 contextBridge.exposeInMainWorld('electron', {
-  ipcRenderer: {
-    myPing() {
-      ipcRenderer.send('ipc-example', 'ping')
+  ipc: {
+    get(channel, payload) {
+      return ipcRenderer.sendSync(channel, value)
     },
-    on(channel, func) {
-      const validChannels = ['ipc-example']
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.on(channel, (event, ...args) => func(...args))
-      }
+    set(channel, payload) {
+      ipcRenderer.send(channel, payload)
     },
-    once(channel, func) {
-      const validChannels = ['ipc-example']
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.once(channel, (event, ...args) => func(...args))
-      }
+    on(channel, callback) {
+      ipcRenderer.on(channel, (event, ...args) => callback(...args))
     },
-  },
-  store: {
-    get(value) {
-      return ipcRenderer.sendSync(STORE_GET, value)
+    once(channel, callback) {
+      ipcRenderer.once(channel, (event, ...args) => callback(...args))
     },
-    set(key, value) {
-      ipcRenderer.send(STORE_SET, key, value)
-    },
-  },
+  }
 })

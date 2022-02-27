@@ -1,20 +1,21 @@
-import { useState } from 'react'
+import { IPC_STORE_GET, IPC_STORE_SET } from 'ipc/channels'
+import { useCallback, useState } from 'react'
 
 export default function useStore(
   key: string,
   initialValue?: string
 ): [string, (value: string) => void] {
-  const { store } = window.electron
-  const defaultValue: string = store.get(key) ?? initialValue
+  const { ipc } = window.electron
+  const defaultValue: string = ipc.get(IPC_STORE_GET, key) ?? initialValue
   const [storedValue, setStoredValue] = useState(defaultValue)
 
-  const setValue = (value: string) => {
+  const setValue = useCallback((value: string) => {
     try {
       setStoredValue(value)
-      store.set(key, value)
+      ipc.set(IPC_STORE_SET, { key, value })
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [setStoredValue, ipc, key])
   return [storedValue, setValue]
 }

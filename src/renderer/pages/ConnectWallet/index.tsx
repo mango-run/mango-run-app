@@ -2,15 +2,16 @@ import { useCallback, useState } from 'react'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
 import useStore from '../../hooks/useStore'
+import useSolana from 'renderer/hooks/useSolana'
 
 // TODO: migration for storage
 export default function ConnectWallet() {
-  const [pkey, setPkey] = useStore('private_key')
+  const { wallet, connectWallet } = useSolana()
   const [input, setInput] = useState('')
 
   const onSubmit = useCallback(() => {
-    setPkey(input)
-  }, [setPkey, input])
+    connectWallet(input)
+  }, [connectWallet, input])
 
   return (
     <div className="flex flex-row items-center justify-center w-full">
@@ -23,7 +24,7 @@ export default function ConnectWallet() {
         <Button className="mb-4" onClick={onSubmit}>
           Import Private Key
         </Button>
-        <div>Stored Private Key: {pkey}</div>
+        <div>Current wallet: {wallet}</div>
       </div>
     </div>
   )
