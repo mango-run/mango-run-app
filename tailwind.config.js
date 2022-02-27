@@ -20,7 +20,7 @@ module.exports = {
       ...themeColors,
     },
     borderColor: {
-      DEFAULT: 'var(--bg-4)',
+      DEFAULT: 'var(--bg-3)',
       primary: 'var(--primary)',
       ...themeColors,
     },
