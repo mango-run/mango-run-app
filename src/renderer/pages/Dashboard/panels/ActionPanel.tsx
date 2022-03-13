@@ -1,10 +1,34 @@
-import { Input } from "antd"
+import { Input } from 'antd'
+import { useCallback } from 'react'
+import { useSolanaContext } from 'renderer/contexts/solana'
 import Button from '../../../components/Button'
+import { useDashboardContext } from '../context'
 
 export default function ActionPanel() {
+  const { startBot } = useDashboardContext()
+  const { wallet } = useSolanaContext()
+
+  const onSubmit = useCallback(async () => {
+    if (!wallet) {
+      return
+    }
+    const args = {
+      publicKey: wallet,
+      baseSymbol: 'SOL',
+      marketKind: 'perp',
+      priceUpperCap: 90,
+      priceLowerCap: 80,
+      gridCount: 5,
+      orderSize: 0.01,
+    } as any
+    await startBot(args)
+  }, [startBot, wallet])
+
   return (
     <div>
-      <div className="my-4 font-bold text-lg text-center">Edit Grid Trading Bot</div>
+      <div className="my-4 font-bold text-lg text-center">
+        Edit Grid Trading Bot
+      </div>
       <div>
         <div className="flex flex-row">
           <div className="flex-1 mr-4">
@@ -27,7 +51,9 @@ export default function ActionPanel() {
         </div>
       </div>
       <div className="w-full mt-4">
-        <Button className="w-full">Submit</Button>
+        <Button className="w-full" onClick={onSubmit}>
+          Submit
+        </Button>
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
+import { useSolanaContext } from 'renderer/contexts/solana'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
-import { useSolanaContext } from 'renderer/contexts/solana'
 
 // TODO: migration for storage
 export default function ConnectWallet() {
@@ -24,7 +24,7 @@ export default function ConnectWallet() {
           Import Private Key
         </Button>
         <div>
-          <div className='mb-1 opacity-75'>Current wallet:</div>
+          <div className="mb-1 opacity-75">Current wallet:</div>
           <div>{wallet}</div>
         </div>
       </div>

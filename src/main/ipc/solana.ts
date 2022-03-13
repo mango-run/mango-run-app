@@ -1,11 +1,28 @@
-import { IpcMain } from "electron"
+import { IpcMain } from 'electron'
 import Store from 'electron-store'
 import base58 from 'bs58'
-import { Keypair } from "@solana/web3.js"
-import { IPC_SOLANA_GET_WALLET, IPC_SOLANA_ON_WALLET_CHANGE, IPC_SOLANA_SET_WALLET } from "../../ipc/channels"
+import { Keypair } from '@solana/web3.js'
+import {
+  IPC_SOLANA_GET_WALLET,
+  IPC_SOLANA_ON_WALLET_CHANGE,
+  IPC_SOLANA_SET_WALLET,
+} from '../../ipc/channels'
 
 const STORE_PRIVATE_KEY = 'STORE_PRIVATE_KEY'
 const store = new Store()
+
+export function getPrivateKey() {
+  return store.get(STORE_PRIVATE_KEY) as string | undefined
+}
+
+export function getAccount() {
+  const pk = getPrivateKey()
+  if (!pk) {
+    return undefined
+  }
+  const kp = Keypair.fromSecretKey(base58.decode(pk))
+  return kp.publicKey.toBase58()
+}
 
 function initMain(ipcMain: IpcMain) {
   ipcMain.on(IPC_SOLANA_SET_WALLET, async (event, { privateKey }) => {
@@ -19,13 +36,4 @@ function initMain(ipcMain: IpcMain) {
 
 export default {
   initMain,
-}
-
-function getAccount() {
-  const pk = store.get(STORE_PRIVATE_KEY) as string | undefined
-  if (!pk) {
-    return
-  }
-  const kp = Keypair.fromSecretKey(base58.decode(pk))
-  return kp.publicKey.toBase58()
 }

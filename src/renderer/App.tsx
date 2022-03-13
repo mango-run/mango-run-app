@@ -1,4 +1,9 @@
-import { MemoryRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import {
+  MemoryRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom'
 import Header from './components/Header'
 import ConnectWallet from './pages/ConnectWallet'
 import Dashboard from './pages/Dashboard'
@@ -23,10 +28,10 @@ declare global {
   interface Window {
     electron: {
       ipc: {
-        get: (channel: string, payload?: any) => any,
-        set: (channel: string, payload: any) => void,
-        on: (channel: string, callback: (...params: any) => void) => void,
-        once: (channel: string, callback: (...params: any) => void) => void,
+        get: (channel: string, payload?: any) => any
+        set: (channel: string, payload: any) => void
+        on: (channel: string, callback: (...params: any) => void) => void
+        once: (channel: string, callback: (...params: any) => void) => void
       }
     }
   }

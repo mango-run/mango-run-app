@@ -20,7 +20,7 @@ module.exports = {
     backgroundColor: {
       primary: 'var(--primary)',
       ...themeColors,
-      'button': 'var(--bg-button)',
+      button: 'var(--bg-button)',
       'button-h': 'var(--bg-button-h)',
     },
     borderColor: {

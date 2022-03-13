@@ -9,13 +9,16 @@ export default function useStore(
   const defaultValue: string = ipc.get(IPC_STORE_GET, key) ?? initialValue
   const [storedValue, setStoredValue] = useState(defaultValue)
 
-  const setValue = useCallback((value: string) => {
-    try {
-      setStoredValue(value)
-      ipc.set(IPC_STORE_SET, { key, value })
-    } catch (error) {
-      console.error(error)
-    }
-  }, [setStoredValue, ipc, key])
+  const setValue = useCallback(
+    (value: string) => {
+      try {
+        setStoredValue(value)
+        ipc.set(IPC_STORE_SET, { key, value })
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    [setStoredValue, ipc, key]
+  )
   return [storedValue, setValue]
 }

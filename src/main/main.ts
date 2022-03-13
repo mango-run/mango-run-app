@@ -16,6 +16,7 @@ import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import ipcStore from './ipc/store'
 import ipcSolana from './ipc/solana'
+import ipcMango from './ipc/mango'
 
 export default class AppUpdater {
   constructor() {
@@ -141,3 +142,4 @@ ipcMain.on('ipc-example', async (event, arg) => {
 
 ipcStore.initMain(ipcMain)
 ipcSolana.initMain(ipcMain)
+ipcMango.initMain(ipcMain)
