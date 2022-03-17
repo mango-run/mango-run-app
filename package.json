@@ -31,8 +31,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "MangoRun",
+    "appId": "org.mangorun.app",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
