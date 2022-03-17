@@ -15,6 +15,20 @@ export function getPrivateKey() {
   return store.get(STORE_PRIVATE_KEY) as string | undefined
 }
 
+export function getKeypair() {
+  const pk = getPrivateKey()
+  if (!pk) {
+    return undefined
+  }
+  return Keypair.fromSecretKey(base58.decode(pk))
+}
+
+export function mustGetKeypair() {
+  const keypair = getKeypair()
+  if (!keypair) throw new Error('not found keypair')
+  return keypair
+}
+
 export function getAccount() {
   const pk = getPrivateKey()
   if (!pk) {

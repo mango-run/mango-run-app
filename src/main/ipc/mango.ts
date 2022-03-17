@@ -1,85 +1,126 @@
 import { IpcMain } from 'electron'
-import Store from 'electron-store'
-import base58 from 'bs58'
 import {
-  MangoMarketConfigs,
-  MangoMarket,
-  ConsoleLogger,
-  GridSignalConfigs,
+  Config,
+  getMarketByBaseSymbolAndKind,
+  IDS,
+  MangoAccount,
+  MangoClient,
+} from '@blockworks-foundation/mango-client'
+import {
+  MangoPerpMarket,
   NaiveGridSignal,
   Bot,
+  ConsoleLogger,
 } from '@mango-run/core'
-import { Keypair } from '@solana/web3.js'
-import { IPC_MANGO_START_BOT, IPC_MANGO_GET_BOT } from '../../ipc/channels'
-import { getAccount, getPrivateKey } from './solana'
-
-interface GridBotArgs {
-  privateKey: string
-  baseSymbol: string
-  marketKind: 'perp'
-  priceUpperCap: number
-  priceLowerCap: number
-  gridCount: number
-  gridActiveRange?: number
-  orderSize: number
-  startPrice?: number
-  stopLossPrice?: number
-  takeProfitPrice?: number
-}
-
-let bot: Bot | undefined
-
-async function startBot(args: GridBotArgs) {
-  const marketConfigs: MangoMarketConfigs = {
-    keypair: Keypair.fromSecretKey(base58.decode(args.privateKey)),
-    symbol: args.baseSymbol,
-    kind: args.marketKind,
-  }
-
-  const logger = new ConsoleLogger()
-  const market = new MangoMarket(marketConfigs, logger)
-  market.initialize()
-
-  const mangoAccounts = await market.subAccounts()
-  if (!mangoAccounts.length) {
-    logger.info('please create mango account first')
-    return
-  }
-
-  market.setSubAccountIndex(mangoAccounts[0])
-
-  const signalConfigs: GridSignalConfigs = {
-    market,
-    priceUpperCap: args.priceUpperCap,
-    priceLowerCap: args.priceLowerCap,
-    gridCount: args.gridCount,
-    orderSize: args.orderSize,
-    gridActiveRange: args.gridActiveRange,
-    startPrice: args.startPrice,
-    stopLossPrice: args.stopLossPrice,
-    takeProfitPrice: args.takeProfitPrice,
-  }
-  const signal = new NaiveGridSignal(signalConfigs, logger)
-
-  bot = new Bot(market, signal, logger)
-  bot.start()
-}
+import { Connection } from '@solana/web3.js'
+import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/channels'
+import { mustGetKeypair } from './solana'
 
 async function initMain(ipcMain: IpcMain) {
-  ipcMain.on(
-    IPC_MANGO_START_BOT,
-    async (_, { args }: { args: GridBotArgs }) => {
-      const pk = getPrivateKey()
-      if (!pk) {
-        return
-      }
-      args.privateKey = pk
-      await startBot(args)
-    }
-  )
+  const keypair = mustGetKeypair()
 
-  ipcMain.on(IPC_MANGO_GET_BOT, async (event) => {
-    event.returnValue = bot
+  const groupConfig = new Config(IDS).getGroup('mainnet', 'mainnet.1')
+  if (!groupConfig) throw new Error('not found mango group config')
+
+  const connection = new Connection('https://ssc-dao.genesysgo.net')
+
+  const mangoClient = new MangoClient(connection, groupConfig.mangoProgramId)
+
+  const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey)
+
+  const mangoCache = await mangoGroup.loadCache(connection)
+
+  let accounts: MangoAccount[] = []
+
+  let account: MangoAccount | null = null
+
+  let bot: Bot | undefined
+
+  ipcMain.on(IPC_MANGO_RUN_CHANNEL, async (e, message) => {
+    switch (message.type) {
+      case 'fetch-account-list': {
+        accounts = await mangoClient.getMangoAccountsForOwner(
+          mangoGroup,
+          keypair.publicKey
+        )
+
+        e.sender.send('IPC_MANGO_RUN_CHANNEL', {
+          type: 'account-fetched',
+          payload: {
+            accounts: accounts.map((a, index) => ({ index, name: a.name })),
+          },
+        })
+        break
+      }
+
+      case 'set-account': {
+        account = accounts[message.payload.index] || null
+
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, {
+          type: 'account-changed',
+          payload: {
+            account: { index: message.payload.index, name: account.name },
+          },
+        })
+        break
+      }
+
+      case 'start-grid-bot': {
+        if (!account) break
+        if (bot) break
+        const logger = new ConsoleLogger()
+        const marketConfig = getMarketByBaseSymbolAndKind(
+          groupConfig,
+          message.payload.config.baseSymbol,
+          'perp'
+        )
+        const perpMarket = await mangoGroup.loadPerpMarket(
+          connection,
+          marketConfig.marketIndex,
+          marketConfig.baseDecimals,
+          marketConfig.quoteDecimals
+        )
+        const market = new MangoPerpMarket(
+          {
+            keypair,
+            connection,
+            mangoAccount: account,
+            mangoCache,
+            mangoClient,
+            mangoGroup,
+            marketConfig,
+            perpMarket,
+          },
+          logger
+        )
+        const signal = new NaiveGridSignal(
+          {
+            market,
+            priceLowerCap: message.payload.config.priceLowerCap,
+            priceUpperCap: message.payload.config.priceUpperCap,
+            gridCount: message.payload.config.gridCount,
+            orderSize: message.payload.config.orderSize,
+          },
+          logger
+        )
+        bot = new Bot(market, signal, logger)
+        await bot.start()
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-started' })
+        break
+      }
+
+      case 'stop-grid-bot': {
+        if (!bot) break
+        await bot.stop()
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-stopped' })
+        break
+      }
+
+      default: {
+        console.log('unhandled payload', message)
+        break
+      }
+    }
   })
 }
 

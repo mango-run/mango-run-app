@@ -1,3 +1,5 @@
+export { IPC_MANGO_RUN_CHANNEL } from './mango'
+
 // stoe in local storage
 export const IPC_STORE_GET = 'IPC_STORE_GET'
 export const IPC_STORE_SET = 'IPC_STORE_SET'
