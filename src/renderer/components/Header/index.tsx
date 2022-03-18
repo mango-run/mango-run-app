@@ -39,6 +39,7 @@ export default function Header() {
           <img src={mangoImg} className="w-12 h-12" alt="" />
         </NavLink>
         <NavItem path="/dashboard" title="Dashboard" />
+        <NavItem path="/mango-run" title="Mango Run" />
       </div>
       <WalletStatus />
     </div>
