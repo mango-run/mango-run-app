@@ -7,13 +7,13 @@ import {
   MangoClient,
 } from '@blockworks-foundation/mango-client'
 import {
-  MangoPerpMarket,
-  NaiveGridSignal,
   Bot,
   ConsoleLogger,
+  MangoPerpMarket,
+  NaiveGridSignal,
 } from '@mango-run/core'
 import { Connection } from '@solana/web3.js'
-import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/channels'
+import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/mango'
 import { mustGetKeypair } from './solana'
 
 async function initMain(ipcMain: IpcMain) {
@@ -44,7 +44,7 @@ async function initMain(ipcMain: IpcMain) {
           keypair.publicKey
         )
 
-        e.sender.send('IPC_MANGO_RUN_CHANNEL', {
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, {
           type: 'account-fetched',
           payload: {
             accounts: accounts.map((a, index) => ({ index, name: a.name })),

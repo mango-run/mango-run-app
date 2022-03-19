@@ -15,12 +15,12 @@ export default function ActionPanel() {
     const args = {
       publicKey: wallet,
       baseSymbol: 'SOL',
-      marketKind: 'perp',
+      marketKind: 'perp' as never,
       priceUpperCap: 90,
       priceLowerCap: 80,
       gridCount: 5,
       orderSize: 0.01,
-    } as any
+    }
     await startBot(args)
   }, [startBot, wallet])
 
