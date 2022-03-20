@@ -17,8 +17,7 @@ export type MangoMessage =
   | { type: 'grid-bot-started' }
   | { type: 'stop-grid-bot' }
   | { type: 'grid-bot-stoppted' }
-  | { type: 'fetch-orders' }
-  | { type: 'orders-changed'; payload: { orders: any[] } }
+  | { type: 'get-orders' }
 
 export interface PlainMangoAccount {
   index: number

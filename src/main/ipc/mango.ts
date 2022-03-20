@@ -45,12 +45,12 @@ async function initMain(ipcMain: IpcMain) {
             accounts: accounts.map((a, index) => ({ index, name: a.name })),
           },
         })
-        break
+        return
       }
 
-      case 'fetch-orders': {
-        e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'orders-changed', orders: market?.receipts() ?? [] })
-        break
+      case 'get-orders': {
+        e.returnValue = market?.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending)
+        return
       }
 
       case 'select-account': {
@@ -71,12 +71,6 @@ async function initMain(ipcMain: IpcMain) {
             logger
           )
           await market.initialize()
-          e.sender.send(IPC_MANGO_RUN_CHANNEL, {
-            type: 'orders-changed',
-            payload: {
-              orders: market.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending) ?? [],
-            },
-          })
         }
         e.sender.send(IPC_MANGO_RUN_CHANNEL, {
           type: 'account-selected',
@@ -105,13 +99,7 @@ async function initMain(ipcMain: IpcMain) {
         bot = new Bot(market, signal, logger)
         await bot.start()
         e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-started' })
-        e.sender.send(IPC_MANGO_RUN_CHANNEL, {
-          type: 'orders-changed',
-          payload: {
-            orders: market.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending),
-          },
-        })
-        break
+        return
       }
 
       case 'stop-grid-bot': {
@@ -119,12 +107,11 @@ async function initMain(ipcMain: IpcMain) {
         await bot.stop()
         bot = null
         e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-stopped' })
-        break
+        return
       }
 
       default: {
-        console.log('unhandled payload', message)
-        break
+        console.error('unhandled payload', message)
       }
     }
   })

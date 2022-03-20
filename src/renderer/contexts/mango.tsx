@@ -1,25 +1,33 @@
 import { IPC_MANGO_RUN_CHANNEL } from 'ipc/channels'
-import { Receipt } from '@mango-run/core'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { useRecursiveTimeout } from '@funcblock/dapp-sdk'
 import { GridBotConfig, MangoMessage, PlainMangoAccount } from '../../ipc/mango'
+
+export interface IOrder {
+  market: string
+  side: 'Buy' | 'Sell'
+  price: number
+  size: number
+  value: number
+}
 
 interface IMangoContext {
   accounts: PlainMangoAccount[] | null
   selected: PlainMangoAccount | null
-  orders: any[] | null
+  orders: IOrder[] | null
   onRefreshAccounts: () => void
   onSelectAccount: (account: PlainMangoAccount) => void
   onStartBot: (config: GridBotConfig) => void
   onStopBot: () => void
 }
 
-const MangoContext = createContext<IMangoContext>({} as any)
+const MangoContext = createContext<IMangoContext>({} as never)
 
-export function MangoContextProvider({ children }: { children: any }) {
+export function MangoContextProvider({ children }: { children: never }) {
   const { ipc } = window.electron
   const [accounts, setAccounts] = useState<PlainMangoAccount[] | null>(null)
   const [selected, setSelected] = useState<PlainMangoAccount | null>(null)
-  const [orders, setOrders] = useState<Receipt[] | null>(null)
+  const [orders, setOrders] = useState<IOrder[] | null>(null)
 
   const messageHandler = useCallback(
     (message: MangoMessage) => {
@@ -33,17 +41,25 @@ export function MangoContextProvider({ children }: { children: any }) {
           setSelected(message.payload.account)
           break
         }
-        case 'orders-changed': {
-          setOrders(message.payload.orders)
-          break
-        }
         default: {
           break
         }
       }
     },
-    [setAccounts, setSelected, setOrders]
+    [setAccounts, setSelected]
   )
+
+  useRecursiveTimeout(async () => {
+    const receipts = ipc.get(IPC_MANGO_RUN_CHANNEL, { type: 'get-orders' })
+    const newOrders: IOrder[] = receipts.map((i: any) => ({
+      market: 'SOL',
+      side: i.order.side === 0 ? 'Buy' : 'Sell',
+      size: i.order.size,
+      price: i.order.price,
+      value: i.order.price * i.order.size,
+    }))
+    setOrders(newOrders)
+  }, 3000)
 
   // subscribe MangoRun channel
   useEffect(() => {

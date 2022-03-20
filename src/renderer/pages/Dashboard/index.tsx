@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ActionPanel from './panels/ActionPanel'
 import HistoryPanel from './panels/HistoryPanel'
 import PositionsPanel from './panels/PositionsPanel'
+import OrdersPanel from './panels/OrdersPanel'
 
 function TabItem({ title, isActive, onClick }: { title: string; isActive: boolean; onClick: any }) {
   const className = isActive ? 'border-primary text-primary' : ''
@@ -27,8 +28,9 @@ export default function Dashboard() {
           <TabItem title="History" isActive={activeTab === 2} onClick={() => setActiveTab(2)} />
         </div>
         <div>
-          {activeTab === 0 && <PositionsPanel />}
-          {activeTab === 1 && <HistoryPanel />}
+          {activeTab === 0 && <OrdersPanel />}
+          {activeTab === 1 && <PositionsPanel />}
+          {activeTab === 2 && <HistoryPanel />}
         </div>
       </div>
     </div>
