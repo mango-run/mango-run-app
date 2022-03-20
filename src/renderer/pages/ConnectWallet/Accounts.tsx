@@ -1,14 +1,16 @@
 import { useEffect } from 'react'
 import { Spin } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
-import useMangoRun from '../../hooks/useMangoRun'
+import { CheckCircleOutlined, ReloadOutlined } from '@ant-design/icons'
+import { useMangoContext } from '../../contexts/mango'
 
 export default function Accounts() {
-  const { onRefreshAccounts, onSelectAccount, accounts, selected } = useMangoRun()
+  const { onRefreshAccounts, onSelectAccount, accounts, selected } = useMangoContext()
 
   useEffect(() => {
-    onRefreshAccounts()
-  }, [onRefreshAccounts])
+    if (!accounts) {
+      onRefreshAccounts()
+    }
+  })
 
   return (
     <div className="flex flex-row items-center justify-center w-full">
@@ -22,11 +24,11 @@ export default function Accounts() {
             <div
               key={account.index}
               onClick={() => onSelectAccount(account)}
-              className={`mb-2 px-4 py-2 rounded cursor-pointer border ${
-                selected?.index === account.index ? 'border-transparent bg-bg3' : 'border-bg3'
+              className={`mb-2 px-4 py-2 rounded cursor-pointer border flex flex-row items-center justify-between hover:bg-bg3 ${
+                selected?.index === account.index ? 'border-green bg-bg3' : 'border-transparent bg-bg1'
               }`}
             >
-              {account.name}
+              {account.name} {selected?.index === account.index && <CheckCircleOutlined className="text-green" />}
             </div>
           ))}
         </div>

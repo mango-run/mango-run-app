@@ -26,6 +26,7 @@ module.exports = {
     borderColor: {
       DEFAULT: 'var(--bg-3)',
       primary: 'var(--primary)',
+      transparent: 'transparent',
       ...themeColors,
     },
     borderRadius: {
