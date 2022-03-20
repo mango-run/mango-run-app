@@ -6,14 +6,9 @@ import {
   MangoAccount,
   MangoClient,
 } from '@blockworks-foundation/mango-client'
-import {
-  Bot,
-  ConsoleLogger,
-  MangoPerpMarket,
-  NaiveGridSignal,
-} from '@mango-run/core'
+import { Bot, ConsoleLogger, MangoPerpMarket, NaiveGridSignal } from '@mango-run/core'
 import { Connection } from '@solana/web3.js'
-import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/mango'
+import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/channels'
 import { mustGetKeypair } from './solana'
 
 async function initMain(ipcMain: IpcMain) {
@@ -39,10 +34,7 @@ async function initMain(ipcMain: IpcMain) {
   ipcMain.on(IPC_MANGO_RUN_CHANNEL, async (e, message) => {
     switch (message.type) {
       case 'fetch-account-list': {
-        accounts = await mangoClient.getMangoAccountsForOwner(
-          mangoGroup,
-          keypair.publicKey
-        )
+        accounts = await mangoClient.getMangoAccountsForOwner(mangoGroup, keypair.publicKey)
 
         e.sender.send(IPC_MANGO_RUN_CHANNEL, {
           type: 'account-fetched',
@@ -69,11 +61,7 @@ async function initMain(ipcMain: IpcMain) {
         if (!account) break
         if (bot) break
         const logger = new ConsoleLogger()
-        const marketConfig = getMarketByBaseSymbolAndKind(
-          groupConfig,
-          message.payload.config.baseSymbol,
-          'perp'
-        )
+        const marketConfig = getMarketByBaseSymbolAndKind(groupConfig, message.payload.config.baseSymbol, 'perp')
         const perpMarket = await mangoGroup.loadPerpMarket(
           connection,
           marketConfig.marketIndex,

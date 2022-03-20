@@ -26,9 +26,7 @@ export default function ActionPanel() {
 
   return (
     <div>
-      <div className="my-4 font-bold text-lg text-center">
-        Edit Grid Trading Bot
-      </div>
+      <div className="my-4 font-bold text-lg text-center">Edit Grid Trading Bot</div>
       <div>
         <div className="flex flex-row">
           <div className="flex-1 mr-4">

@@ -19,9 +19,7 @@ interface IDashboardContext {
   startBot: (args: GridBotArgs) => void
 }
 
-export const DashboardContext = createContext<IDashboardContext>(
-  {} as IDashboardContext
-)
+export const DashboardContext = createContext<IDashboardContext>({} as IDashboardContext)
 
 export function useDashboardContext(): IDashboardContext {
   return useContext(DashboardContext)
@@ -32,7 +30,7 @@ export function DashboardContextProvider({ children }: { children: any }) {
 
   const startBot = useCallback(
     (args: GridBotArgs) => {
-      ipc.set(IPC_MANGO_START_BOT, { args })
+      ipc.send(IPC_MANGO_START_BOT, { args })
     },
     [ipc]
   )

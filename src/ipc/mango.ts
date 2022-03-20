@@ -1,4 +1,4 @@
-export const IPC_MANGO_RUN_CHANNEL = 'IPC_MANGO_RUN_CHANNEL'
+import { IPC_MANGO_RUN_CHANNEL } from './channels'
 
 export interface GridBotConfigs {
   baseSymbol: string
@@ -27,10 +27,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Electron {
     interface IpcMain {
-      on(
-        channel: typeof IPC_MANGO_RUN_CHANNEL,
-        listener: (event: IpcMainEvent, message: MangoMessage) => void
-      ): this
+      on(channel: typeof IPC_MANGO_RUN_CHANNEL, listener: (event: IpcMainEvent, message: MangoMessage) => void): this
     }
 
     interface WebContents {

@@ -196,6 +196,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@funcblock/dapp-sdk": "^0.1.15",
     "antd": "^4.18.5",
     "electron-debug": "^3.2.0",
@@ -227,6 +228,7 @@
       }
     ],
     "singleQuote": true,
-    "semi": false
+    "semi": false,
+    "printWidth": 120
   }
 }

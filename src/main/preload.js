@@ -5,7 +5,7 @@ contextBridge.exposeInMainWorld('electron', {
     get(channel, payload) {
       return ipcRenderer.sendSync(channel, payload)
     },
-    set(channel, payload) {
+    send(channel, payload) {
       ipcRenderer.send(channel, payload)
     },
     on(channel, callback) {

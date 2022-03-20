@@ -4,21 +4,10 @@ import ActionPanel from './panels/ActionPanel'
 import HistoryPanel from './panels/HistoryPanel'
 import PositionsPanel from './panels/PositionsPanel'
 
-function TabItem({
-  title,
-  isActive,
-  onClick,
-}: {
-  title: string
-  isActive: boolean
-  onClick: any
-}) {
+function TabItem({ title, isActive, onClick }: { title: string; isActive: boolean; onClick: any }) {
   const className = isActive ? 'border-primary text-primary' : ''
   return (
-    <div
-      className={`flex-1 text-center py-4 cursor-pointer border-b-2 ${className}`}
-      onClick={onClick}
-    >
+    <div className={`flex-1 text-center py-4 cursor-pointer border-b-2 ${className}`} onClick={onClick}>
       {title}
     </div>
   )
@@ -35,16 +24,8 @@ export default function Dashboard() {
         </div>
         <div className="flex-1 bg-bg2 ml-8">
           <div className="flex items-center">
-            <TabItem
-              title="Positions"
-              isActive={activeTab === 0}
-              onClick={() => setActiveTab(0)}
-            />
-            <TabItem
-              title="History"
-              isActive={activeTab === 1}
-              onClick={() => setActiveTab(1)}
-            />
+            <TabItem title="Positions" isActive={activeTab === 0} onClick={() => setActiveTab(0)} />
+            <TabItem title="History" isActive={activeTab === 1} onClick={() => setActiveTab(1)} />
           </div>
           <div>
             {activeTab === 0 && <PositionsPanel />}

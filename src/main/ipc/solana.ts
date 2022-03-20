@@ -2,11 +2,7 @@ import { IpcMain } from 'electron'
 import Store from 'electron-store'
 import base58 from 'bs58'
 import { Keypair } from '@solana/web3.js'
-import {
-  IPC_SOLANA_GET_WALLET,
-  IPC_SOLANA_ON_WALLET_CHANGE,
-  IPC_SOLANA_SET_WALLET,
-} from '../../ipc/channels'
+import { IPC_SOLANA_GET_WALLET, IPC_SOLANA_ON_WALLET_CHANGE, IPC_SOLANA_SET_WALLET } from '../../ipc/channels'
 
 const STORE_PRIVATE_KEY = 'STORE_PRIVATE_KEY'
 const store = new Store()

@@ -1,15 +1,5 @@
-import {
-  IPC_SOLANA_GET_WALLET,
-  IPC_SOLANA_ON_WALLET_CHANGE,
-  IPC_SOLANA_SET_WALLET,
-} from 'ipc/channels'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { IPC_SOLANA_GET_WALLET, IPC_SOLANA_ON_WALLET_CHANGE, IPC_SOLANA_SET_WALLET } from 'ipc/channels'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 interface ISolanaContext {
   wallet?: string
@@ -28,7 +18,7 @@ export function SolanaContextProvider({ children }: { children: any }) {
   const connectWallet = useCallback(
     (privateKey: string) => {
       try {
-        ipc.set(IPC_SOLANA_SET_WALLET, { privateKey })
+        ipc.send(IPC_SOLANA_SET_WALLET, { privateKey })
       } catch (error) {
         console.error(error)
       }

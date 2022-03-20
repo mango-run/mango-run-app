@@ -1,9 +1,8 @@
 import { DetailedHTMLProps, InputHTMLAttributes } from 'react'
 
-type Props = DetailedHTMLProps<
-  InputHTMLAttributes<HTMLInputElement>,
-  HTMLInputElement
-> & { onInputText: (text: string) => void }
+type Props = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+  onInputText: (text: string) => void
+}
 
 export default function Input({ className, onInputText, ...props }: Props) {
   return (

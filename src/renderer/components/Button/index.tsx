@@ -1,9 +1,6 @@
 import { ButtonHTMLAttributes, DetailedHTMLProps } from 'react'
 
-type Props = DetailedHTMLProps<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
->
+type Props = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>
 
 export default function Button({ className, ...props }: Props) {
   return (
