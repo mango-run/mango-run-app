@@ -25,11 +25,9 @@ export function SolanaContextProvider({ children }: { children: any }) {
     },
     [ipc]
   )
-
   useEffect(() => {
-    ipc.on(IPC_SOLANA_ON_WALLET_CHANGE, (newWallet: string) => {
-      setWallet(newWallet)
-    })
+    ipc.on(IPC_SOLANA_ON_WALLET_CHANGE, setWallet)
+    return () => ipc.off(IPC_SOLANA_ON_WALLET_CHANGE, setWallet)
   }, [ipc])
 
   return (

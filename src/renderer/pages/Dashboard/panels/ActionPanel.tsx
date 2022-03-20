@@ -1,50 +1,61 @@
-import { Input } from 'antd'
-import { useCallback } from 'react'
+import { Input, Select } from 'antd'
+import { useCallback, useState } from 'react'
 import { useSolanaContext } from 'renderer/contexts/solana'
 import Button from '../../../components/Button'
-import { useDashboardContext } from '../context'
+import { useMangoContext } from '../../../contexts/mango'
+import { GridBotConfig } from '../../../../ipc/mango'
 
 export default function ActionPanel() {
-  const { startBot } = useDashboardContext()
+  const { onStartBot } = useMangoContext()
   const { wallet } = useSolanaContext()
+  const [baseSymbol, setBaseSymbol] = useState('SOL')
+  const [priceUpperCap, setPriceUpperCap] = useState('')
+  const [priceLowerCap, setPriceLowerCap] = useState('')
+  const [gridCount, setGridCount] = useState('')
+  const [totalAmount, setTotalAmount] = useState('')
 
   const onSubmit = useCallback(async () => {
     if (!wallet) {
       return
     }
-    const args = {
-      publicKey: wallet,
-      baseSymbol: 'SOL',
-      marketKind: 'perp' as never,
-      priceUpperCap: 90,
-      priceLowerCap: 80,
-      gridCount: 5,
-      orderSize: 0.01,
+    const gridCountNumber = parseInt(gridCount, 10)
+    const orderSize = parseFloat(totalAmount) / gridCountNumber
+    const config: GridBotConfig = {
+      baseSymbol,
+      priceUpperCap: parseFloat(priceUpperCap),
+      priceLowerCap: parseFloat(priceLowerCap),
+      gridCount: parseFloat(gridCount),
+      orderSize,
     }
-    await startBot(args)
-  }, [startBot, wallet])
+    await onStartBot(config)
+  }, [onStartBot, wallet, baseSymbol, priceUpperCap, priceLowerCap, gridCount, totalAmount])
 
   return (
     <div>
       <div className="my-4 font-bold text-lg text-center">Edit Grid Trading Bot</div>
       <div>
-        <div className="flex flex-row">
+        <div className="mb-2">
+          <Select className="w-full bg-bg-1" value={baseSymbol} onChange={(e) => setBaseSymbol(e)}>
+            <Select.Option className="bg-bg-2">SOL</Select.Option>
+          </Select>
+        </div>
+        <div className="mb-2 flex flex-row">
           <div className="flex-1 mr-4">
             <div className="mb-1">Lower Price</div>
-            <Input className="" />
+            <Input className="" value={priceLowerCap} onChange={(e) => setPriceLowerCap(e.target.value)} />
           </div>
           <div className="flex-1 ml-4">
             <div className="mb-1">Upper Price</div>
-            <Input className="" />
+            <Input className="" value={priceUpperCap} onChange={(e) => setPriceUpperCap(e.target.value)} />
           </div>
         </div>
-        <div className="mt-6">
+        <div className="mb-2">
           <div className="mb-1">Grids (2-50)</div>
-          <Input className="" />
+          <Input className="" value={gridCount} onChange={(e) => setGridCount(e.target.value)} />
         </div>
-        <div className="mt-6">
+        <div className="mb-2">
           <div className="mb-1">Invest</div>
-          <Input className="" suffix="USDT" />
+          <Input className="" suffix="USDT" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} />
           <div className="text-right mt-2">Balance: 100 USDT</div>
         </div>
       </div>

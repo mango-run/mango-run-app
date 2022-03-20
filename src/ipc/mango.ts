@@ -1,6 +1,6 @@
 import { IPC_MANGO_RUN_CHANNEL } from './channels'
 
-export interface GridBotConfigs {
+export interface GridBotConfig {
   baseSymbol: string
   priceUpperCap: number
   priceLowerCap: number
@@ -9,14 +9,16 @@ export interface GridBotConfigs {
 }
 
 export type MangoMessage =
-  | { type: 'fetch-account-list' }
-  | { type: 'set-account'; payload: { index: number } }
-  | { type: 'account-fetched'; payload: { accounts: PlainMangoAccount[] } }
-  | { type: 'start-grid-bot'; payload: { config: GridBotConfigs } }
-  | { type: 'stop-grid-bot' }
+  | { type: 'fetch-accounts' }
+  | { type: 'accounts-changed'; payload: { accounts: PlainMangoAccount[] } }
+  | { type: 'select-account'; payload: { index: number } }
+  | { type: 'account-selected'; payload: { account: PlainMangoAccount | null } }
+  | { type: 'start-grid-bot'; payload: { config: GridBotConfig } }
   | { type: 'grid-bot-started' }
+  | { type: 'stop-grid-bot' }
   | { type: 'grid-bot-stoppted' }
-  | { type: 'account-changed'; payload: { account: PlainMangoAccount | null } }
+  | { type: 'fetch-orders' }
+  | { type: 'orders-changed'; payload: { orders: any[] } }
 
 export interface PlainMangoAccount {
   index: number

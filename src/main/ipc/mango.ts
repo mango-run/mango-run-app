@@ -6,7 +6,7 @@ import {
   MangoAccount,
   MangoClient,
 } from '@blockworks-foundation/mango-client'
-import { Bot, ConsoleLogger, MangoPerpMarket, NaiveGridSignal } from '@mango-run/core'
+import { Bot, ConsoleLogger, MangoPerpMarket, NaiveGridSignal, ReceiptStatus } from '@mango-run/core'
 import { Connection } from '@solana/web3.js'
 import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/channels'
 import { mustGetKeypair } from './solana'
@@ -18,26 +18,29 @@ async function initMain(ipcMain: IpcMain) {
   if (!groupConfig) throw new Error('not found mango group config')
 
   const connection = new Connection('https://ssc-dao.genesysgo.net')
-
   const mangoClient = new MangoClient(connection, groupConfig.mangoProgramId)
-
   const mangoGroup = await mangoClient.getMangoGroup(groupConfig.publicKey)
-
   const mangoCache = await mangoGroup.loadCache(connection)
-
   let accounts: MangoAccount[] = []
-
   let account: MangoAccount | null = null
-
-  let bot: Bot | undefined
+  let bot: Bot | null = null
+  const logger = new ConsoleLogger()
+  const marketConfig = getMarketByBaseSymbolAndKind(groupConfig, 'SOL', 'perp')
+  const perpMarket = await mangoGroup.loadPerpMarket(
+    connection,
+    marketConfig.marketIndex,
+    marketConfig.baseDecimals,
+    marketConfig.quoteDecimals
+  )
+  let market: MangoPerpMarket | null = null
 
   ipcMain.on(IPC_MANGO_RUN_CHANNEL, async (e, message) => {
     switch (message.type) {
-      case 'fetch-account-list': {
+      case 'fetch-accounts': {
         accounts = await mangoClient.getMangoAccountsForOwner(mangoGroup, keypair.publicKey)
 
         e.sender.send(IPC_MANGO_RUN_CHANNEL, {
-          type: 'account-fetched',
+          type: 'accounts-changed',
           payload: {
             accounts: accounts.map((a, index) => ({ index, name: a.name })),
           },
@@ -45,11 +48,38 @@ async function initMain(ipcMain: IpcMain) {
         break
       }
 
-      case 'set-account': {
+      case 'fetch-orders': {
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'orders-changed', orders: market?.receipts() ?? [] })
+        break
+      }
+
+      case 'select-account': {
         account = accounts[message.payload.index] || null
 
+        if (account) {
+          market = new MangoPerpMarket(
+            {
+              keypair,
+              connection,
+              mangoAccount: account,
+              mangoCache,
+              mangoClient,
+              mangoGroup,
+              marketConfig,
+              perpMarket,
+            },
+            logger
+          )
+          await market.initialize()
+          e.sender.send(IPC_MANGO_RUN_CHANNEL, {
+            type: 'orders-changed',
+            payload: {
+              orders: market.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending) ?? [],
+            },
+          })
+        }
         e.sender.send(IPC_MANGO_RUN_CHANNEL, {
-          type: 'account-changed',
+          type: 'account-selected',
           payload: {
             account: { index: message.payload.index, name: account.name },
           },
@@ -58,29 +88,10 @@ async function initMain(ipcMain: IpcMain) {
       }
 
       case 'start-grid-bot': {
-        if (!account) break
-        if (bot) break
-        const logger = new ConsoleLogger()
-        const marketConfig = getMarketByBaseSymbolAndKind(groupConfig, message.payload.config.baseSymbol, 'perp')
-        const perpMarket = await mangoGroup.loadPerpMarket(
-          connection,
-          marketConfig.marketIndex,
-          marketConfig.baseDecimals,
-          marketConfig.quoteDecimals
-        )
-        const market = new MangoPerpMarket(
-          {
-            keypair,
-            connection,
-            mangoAccount: account,
-            mangoCache,
-            mangoClient,
-            mangoGroup,
-            marketConfig,
-            perpMarket,
-          },
-          logger
-        )
+        if (bot || !account || !market) {
+          console.error('invalid status to start bot')
+          break
+        }
         const signal = new NaiveGridSignal(
           {
             market,
@@ -94,12 +105,19 @@ async function initMain(ipcMain: IpcMain) {
         bot = new Bot(market, signal, logger)
         await bot.start()
         e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-started' })
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, {
+          type: 'orders-changed',
+          payload: {
+            orders: market.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending),
+          },
+        })
         break
       }
 
       case 'stop-grid-bot': {
         if (!bot) break
         await bot.stop()
+        bot = null
         e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-stopped' })
         break
       }
