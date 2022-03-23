@@ -1,7 +1,8 @@
-import { shorten } from '@funcblock/dapp-sdk'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useSolanaContext } from 'renderer/contexts/solana'
+import { useMemo } from 'react'
 import mangoImg from '../../../../assets/images/mango.svg'
+import { useMangoContext } from '../../contexts/mango'
 
 function NavItem({ path, title }: { path: string; title: string }) {
   const currentPath = useLocation().pathname
@@ -15,11 +16,22 @@ function NavItem({ path, title }: { path: string; title: string }) {
 
 function WalletStatus() {
   const { wallet } = useSolanaContext()
+  const { selectedAccount } = useMangoContext()
+
+  const displayName = useMemo(() => {
+    if (!wallet) {
+      return 'Connect Wallet'
+    }
+    if (!selectedAccount) {
+      return 'Select Account'
+    }
+    return selectedAccount.name
+  }, [wallet, selectedAccount])
 
   return (
     <div>
       <NavLink className="bg-bg3 hover:bg-bg4 py-2 px-4 rounded text-primary hover:text-primary" to="/connect-wallet">
-        {wallet ? shorten(wallet) : 'Connect Wallet'}
+        {displayName}
       </NavLink>
     </div>
   )

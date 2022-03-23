@@ -14,8 +14,10 @@ export interface IOrder {
 
 interface IMangoContext {
   accounts: PlainMangoAccount[] | null
-  selected: PlainMangoAccount | null
+  selectedAccount: PlainMangoAccount | null
   orders: IOrder[] | null
+  isRunning: boolean
+  config: GridBotConfig | null
   onRefreshAccounts: () => void
   onSelectAccount: (account: PlainMangoAccount) => void
   onStartBot: (config: GridBotConfig) => void
@@ -30,6 +32,8 @@ export function MangoContextProvider({ children }: { children: any }) {
   const [accounts, setAccounts] = useState<PlainMangoAccount[] | null>(null)
   const [selected, setSelected] = useState<PlainMangoAccount | null>(null)
   const [orders, setOrders] = useState<IOrder[] | null>(null)
+  const [isRunning, setIsRunning] = useState(false)
+  const [config, setConfig] = useState<GridBotConfig | null>(null)
 
   const messageHandler = useCallback(
     (message: MangoMessage) => {
@@ -60,7 +64,13 @@ export function MangoContextProvider({ children }: { children: any }) {
   )
 
   useRecursiveTimeout(async () => {
-    const receipts = ipc.get(IPC_MANGO_RUN_CHANNEL, { type: 'get-orders' })
+    const { receipts, isRunning, config } = (ipc.get(IPC_MANGO_RUN_CHANNEL, { type: 'get-bot-status' }) ?? {}) as {
+      receipts: any[]
+      isRunning: boolean
+      config: GridBotConfig
+    }
+    setIsRunning(isRunning)
+    setConfig(config)
     const newOrders: IOrder[] =
       receipts?.map((i: any) => ({
         market: 'SOL',
@@ -126,8 +136,10 @@ export function MangoContextProvider({ children }: { children: any }) {
     <MangoContext.Provider
       value={{
         accounts,
-        selected,
+        selectedAccount: selected,
         orders,
+        isRunning,
+        config,
         onRefreshAccounts,
         onSelectAccount,
         onStartBot,

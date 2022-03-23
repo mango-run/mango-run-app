@@ -10,6 +10,8 @@ module.exports = {
     'react/require-default-props': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'jsx-a11y/no-static-element-interactions': 'off',
+    '@typescript-eslint/no-shadow': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     'prettier/prettier': ['error', { printWidth: 120 }],
   },
   parserOptions: {

@@ -4,7 +4,7 @@ import { CheckCircleOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMangoContext } from '../../contexts/mango'
 
 export default function Accounts() {
-  const { onRefreshAccounts, onSelectAccount, accounts, selected } = useMangoContext()
+  const { onRefreshAccounts, onSelectAccount, accounts, selectedAccount } = useMangoContext()
 
   useEffect(() => {
     if (!accounts) {
@@ -25,10 +25,11 @@ export default function Accounts() {
               key={account.index}
               onClick={() => onSelectAccount(account)}
               className={`mb-2 px-4 py-2 rounded cursor-pointer border flex flex-row items-center justify-between hover:bg-bg3 ${
-                selected?.index === account.index ? 'border-green bg-bg3' : 'border-transparent bg-bg1'
+                selectedAccount?.index === account.index ? 'border-green bg-bg3' : 'border-transparent bg-bg1'
               }`}
             >
-              {account.name} {selected?.index === account.index && <CheckCircleOutlined className="text-green" />}
+              {account.name}{' '}
+              {selectedAccount?.index === account.index && <CheckCircleOutlined className="text-green" />}
             </div>
           ))}
         </div>

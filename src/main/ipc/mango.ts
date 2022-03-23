@@ -10,6 +10,7 @@ import { Bot, ConsoleLogger, MangoPerpMarket, NaiveGridSignal, ReceiptStatus } f
 import { Connection } from '@solana/web3.js'
 import { IPC_MANGO_RUN_CHANNEL } from '../../ipc/channels'
 import { mustGetKeypair } from './solana'
+import { GridBotConfig } from '../../ipc/mango'
 
 async function initMain(ipcMain: IpcMain) {
   const keypair = mustGetKeypair()
@@ -33,6 +34,7 @@ async function initMain(ipcMain: IpcMain) {
     marketConfig.quoteDecimals
   )
   let market: MangoPerpMarket | null = null
+  let config: GridBotConfig | null = null
 
   ipcMain.on(IPC_MANGO_RUN_CHANNEL, async (e, message) => {
     switch (message.type) {
@@ -48,8 +50,12 @@ async function initMain(ipcMain: IpcMain) {
         return
       }
 
-      case 'get-orders': {
-        e.returnValue = market?.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending)
+      case 'get-bot-status': {
+        e.returnValue = {
+          orders: market?.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending),
+          isRunning: !!bot,
+          config,
+        }
         return
       }
 
@@ -86,6 +92,7 @@ async function initMain(ipcMain: IpcMain) {
           console.error('invalid status to start bot')
           break
         }
+        config = message.payload.config
         const signal = new NaiveGridSignal(
           {
             market,
@@ -98,7 +105,6 @@ async function initMain(ipcMain: IpcMain) {
         )
         bot = new Bot(market, signal, logger)
         await bot.start()
-        e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-started' })
         return
       }
 
@@ -106,7 +112,7 @@ async function initMain(ipcMain: IpcMain) {
         if (!bot) break
         await bot.stop()
         bot = null
-        e.sender.send(IPC_MANGO_RUN_CHANNEL, { type: 'grid-bot-stopped' })
+        config = null
         return
       }
 

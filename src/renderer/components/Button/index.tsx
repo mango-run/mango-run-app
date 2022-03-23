@@ -1,12 +1,9 @@
-import { ButtonHTMLAttributes, DetailedHTMLProps } from 'react'
+import { Button as AntButton, ButtonProps } from 'antd'
 
-type Props = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>
-
-export default function Button({ className, ...props }: Props) {
+export default function Button({ className, ...props }: ButtonProps) {
   return (
-    <button
-      type="button"
-      className={`input w-full bg-button hover:bg-button-h rounded px-2 py-2 ${className}`}
+    <AntButton
+      className={`input w-full bg-button hover:bg-button-h rounded flex flex-row justify-center items-center text-fg1 hover:text-fg1 hover:border-transparent px-2 py-2 ${className}`}
       {...props}
     />
   )
