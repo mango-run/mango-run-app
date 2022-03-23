@@ -2,6 +2,7 @@ import { IPC_MANGO_RUN_CHANNEL } from 'ipc/channels'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useRecursiveTimeout } from '@funcblock/dapp-sdk'
 import { GridBotConfig, MangoMessage, PlainMangoAccount } from '../../ipc/mango'
+import useStore from '../hooks/useStore'
 
 export interface IOrder {
   market: string
@@ -23,8 +24,9 @@ interface IMangoContext {
 
 const MangoContext = createContext<IMangoContext>({} as never)
 
-export function MangoContextProvider({ children }: { children: never }) {
+export function MangoContextProvider({ children }: { children: any }) {
   const { ipc } = window.electron
+  const [defaultAccountName, setDefaultAccountName] = useStore('SELECTED_MANGO_ACCOUNT_NAME')
   const [accounts, setAccounts] = useState<PlainMangoAccount[] | null>(null)
   const [selected, setSelected] = useState<PlainMangoAccount | null>(null)
   const [orders, setOrders] = useState<IOrder[] | null>(null)
@@ -34,11 +36,19 @@ export function MangoContextProvider({ children }: { children: never }) {
       console.info('On IPC mango message', message)
       switch (message.type) {
         case 'accounts-changed': {
-          setAccounts(message.payload.accounts.sort((a, b) => a.index - b.index))
+          const newAccounts = message.payload.accounts
+          setAccounts(newAccounts)
+          const defaultAccount = newAccounts.find((i) => i.name === defaultAccountName)
+          if (defaultAccount) {
+            setSelected(defaultAccount)
+          } else {
+            setDefaultAccountName(undefined)
+          }
           break
         }
         case 'account-selected': {
           setSelected(message.payload.account)
+          setDefaultAccountName(message.payload.account.name)
           break
         }
         default: {
@@ -46,18 +56,19 @@ export function MangoContextProvider({ children }: { children: never }) {
         }
       }
     },
-    [setAccounts, setSelected]
+    [setAccounts, setSelected, setDefaultAccountName, defaultAccountName]
   )
 
   useRecursiveTimeout(async () => {
     const receipts = ipc.get(IPC_MANGO_RUN_CHANNEL, { type: 'get-orders' })
-    const newOrders: IOrder[] = receipts.map((i: any) => ({
-      market: 'SOL',
-      side: i.order.side === 0 ? 'Buy' : 'Sell',
-      size: i.order.size,
-      price: i.order.price,
-      value: i.order.price * i.order.size,
-    }))
+    const newOrders: IOrder[] =
+      receipts?.map((i: any) => ({
+        market: 'SOL',
+        side: i.order.side === 0 ? 'Buy' : 'Sell',
+        size: i.order.size,
+        price: i.order.price,
+        value: i.order.price * i.order.size,
+      })) ?? []
     setOrders(newOrders)
   }, 3000)
 
@@ -82,12 +93,14 @@ export function MangoContextProvider({ children }: { children: never }) {
 
   const onSelectAccount = useCallback(
     (account: PlainMangoAccount) => {
+      setSelected(account)
+      setDefaultAccountName(account.name)
       ipc.send(IPC_MANGO_RUN_CHANNEL, {
         type: 'select-account',
         payload: { index: account.index },
       })
     },
-    [ipc]
+    [ipc, setSelected, setDefaultAccountName]
   )
 
   const onStartBot = useCallback(

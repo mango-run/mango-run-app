@@ -4,6 +4,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'import/no-unresolved': 'error',
     'react/react-in-jsx-scope': 'off',
+    'react/no-array-index-key': 'off',
     'no-console': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/require-default-props': 'off',

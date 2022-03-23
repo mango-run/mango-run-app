@@ -37,7 +37,7 @@ export default function OrdersPanel() {
           value: 'Value',
         }}
       />
-      {orders ? orders.map((i) => <Row data={i} />) : <div>No order</div>}
+      {orders ? orders.map((i, index) => <Row data={i} key={`${i.price}${index}`} />) : <div>No order</div>}
     </div>
   )
 }

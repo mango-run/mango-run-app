@@ -12,7 +12,7 @@ export type MangoMessage =
   | { type: 'fetch-accounts' }
   | { type: 'accounts-changed'; payload: { accounts: PlainMangoAccount[] } }
   | { type: 'select-account'; payload: { index: number } }
-  | { type: 'account-selected'; payload: { account: PlainMangoAccount | null } }
+  | { type: 'account-selected'; payload: { account: PlainMangoAccount } }
   | { type: 'start-grid-bot'; payload: { config: GridBotConfig } }
   | { type: 'grid-bot-started' }
   | { type: 'stop-grid-bot' }
