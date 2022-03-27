@@ -28,7 +28,14 @@ class MangoBotManager {
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.mangoGroupConfig = new Config(IDS).getGroup('mainnet', 'mainnet.1')!
-    this.connection = new Connection('https://ssc-dao.genesysgo.net')
+    this.connection = new Connection('https://mango.genesysgo.net/', {
+      httpHeaders: {
+        origin: 'https://trade.mango.markets',
+        referer: 'https://trade.mango.markets/',
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36',
+      },
+    })
     this.mangoClient = new MangoClient(this.connection, this.mangoGroupConfig.mangoProgramId)
   }
 
@@ -53,6 +60,7 @@ class MangoBotManager {
       console.error('invaliad status, initMarket failed |', !this.walletKeypair, '|', !this.mangoAccount)
       return
     }
+    console.log('initMarket:', symbol, this.walletKeypair.publicKey.toBase58(), this.mangoAccount.name)
     const mangoCache = await this.mangoGroup.loadCache(this.connection)
     const marketConfig = getMarketByBaseSymbolAndKind(this.mangoGroupConfig, symbol, 'perp')
     const perpMarket = await this.mangoGroup.loadPerpMarket(
@@ -81,6 +89,11 @@ class MangoBotManager {
   async startBot(config: GridBotConfig) {
     const symbol = config.baseSymbol
     await this.initMarket(symbol)
+    try {
+      await this.markets[symbol].cancelAllOrders()
+    } catch (error) {
+      console.error(error)
+    }
     const market = this.markets[symbol]
     const signal = new NaiveGridSignal(
       {
