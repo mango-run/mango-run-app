@@ -5,6 +5,7 @@ import { getKeypair } from './solana'
 
 async function initMain(ipcMain: IpcMain) {
   ipcMain.on(IPC_MANGO_RUN_CHANNEL, async (e, message) => {
+    console.info('on receive ipc message:', message)
     switch (message.type) {
       case 'fetch-accounts': {
         const kp = getKeypair()
