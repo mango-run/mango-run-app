@@ -19,8 +19,8 @@ export type MangoMessage =
   | { type: 'select-account'; payload: { index: number } }
   | { type: 'account-selected'; payload: { account: PlainMangoAccount } }
   | { type: 'start-grid-bot'; payload: { config: GridBotConfig } }
-  | { type: 'stop-grid-bot' }
-  | { type: 'get-bot-status' }
+  | { type: 'stop-grid-bot'; payload: { symbol: string } }
+  | { type: 'get-bot-status'; payload: { symbol: string } }
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

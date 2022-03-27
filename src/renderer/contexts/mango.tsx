@@ -29,11 +29,25 @@ const MangoContext = createContext<IMangoContext>({} as never)
 export function MangoContextProvider({ children }: { children: any }) {
   const { ipc } = window.electron
   const [defaultAccountName, setDefaultAccountName] = useStore('SELECTED_MANGO_ACCOUNT_NAME')
-  const [accounts, setAccounts] = useState<PlainMangoAccount[] | null>(null)
-  const [selected, setSelected] = useState<PlainMangoAccount | null>(null)
-  const [orders, setOrders] = useState<IOrder[] | null>(null)
+  const [accounts, setAccounts] = useState<PlainMangoAccount[] | undefined>()
+  const [selected, setSelected] = useState<PlainMangoAccount | undefined>()
+  const [orders, setOrders] = useState<IOrder[] | undefined>()
   const [isRunning, setIsRunning] = useState(false)
-  const [config, setConfig] = useState<GridBotConfig | null>(null)
+  const [config, setConfig] = useState<GridBotConfig | undefined>()
+
+  const onSelectAccount = useCallback(
+    (account?: PlainMangoAccount) => {
+      setSelected(account)
+      setDefaultAccountName(account?.name)
+      if (account) {
+        ipc.send(IPC_MANGO_RUN_CHANNEL, {
+          type: 'select-account',
+          payload: { index: account.index },
+        })
+      }
+    },
+    [ipc, setSelected, setDefaultAccountName]
+  )
 
   const messageHandler = useCallback(
     (message: MangoMessage) => {
@@ -44,9 +58,9 @@ export function MangoContextProvider({ children }: { children: any }) {
           setAccounts(newAccounts)
           const defaultAccount = newAccounts.find((i) => i.name === defaultAccountName)
           if (defaultAccount) {
-            setSelected(defaultAccount)
+            onSelectAccount(defaultAccount)
           } else {
-            setDefaultAccountName(undefined)
+            onSelectAccount(undefined)
           }
           break
         }
@@ -64,15 +78,18 @@ export function MangoContextProvider({ children }: { children: any }) {
   )
 
   useRecursiveTimeout(async () => {
-    const { receipts, isRunning, config } = (ipc.get(IPC_MANGO_RUN_CHANNEL, { type: 'get-bot-status' }) ?? {}) as {
-      receipts: any[]
+    const { orders, isRunning, config } = (ipc.get(IPC_MANGO_RUN_CHANNEL, {
+      type: 'get-bot-status',
+      payload: { symbol: 'SOL' },
+    }) ?? {}) as {
+      orders: any[]
       isRunning: boolean
       config: GridBotConfig
     }
     setIsRunning(isRunning)
     setConfig(config)
     const newOrders: IOrder[] =
-      receipts?.map((i: any) => ({
+      orders?.map((i: any) => ({
         market: 'SOL',
         side: i.order.side === 0 ? 'Buy' : 'Sell',
         size: i.order.size,
@@ -94,24 +111,19 @@ export function MangoContextProvider({ children }: { children: any }) {
     }
   }, [ipc, messageHandler])
 
+  // fetch account on start
+  useEffect(() => {
+    ipc.send(IPC_MANGO_RUN_CHANNEL, {
+      type: 'fetch-accounts',
+    })
+  }, [ipc])
+
   const onRefreshAccounts = useCallback(() => {
     setAccounts(null)
     ipc.send(IPC_MANGO_RUN_CHANNEL, {
       type: 'fetch-accounts',
     })
   }, [ipc])
-
-  const onSelectAccount = useCallback(
-    (account: PlainMangoAccount) => {
-      setSelected(account)
-      setDefaultAccountName(account.name)
-      ipc.send(IPC_MANGO_RUN_CHANNEL, {
-        type: 'select-account',
-        payload: { index: account.index },
-      })
-    },
-    [ipc, setSelected, setDefaultAccountName]
-  )
 
   const onStartBot = useCallback(
     (config: GridBotConfig) => {
@@ -128,7 +140,7 @@ export function MangoContextProvider({ children }: { children: any }) {
     console.info('stop mango bot')
     ipc.send(IPC_MANGO_RUN_CHANNEL, {
       type: 'stop-grid-bot',
-      payload: {},
+      payload: { symbol: 'SOL' },
     })
   }, [ipc])
 

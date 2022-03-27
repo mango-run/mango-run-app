@@ -1,5 +1,6 @@
 import { Input, Select } from 'antd'
 import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSolanaContext } from 'renderer/contexts/solana'
 import { formatAmount } from '@funcblock/dapp-sdk'
 import Button from '../../../components/Button'
@@ -7,7 +8,8 @@ import { useMangoContext } from '../../../contexts/mango'
 import { GridBotConfig } from '../../../../ipc/mango'
 
 export default function ActionPanel() {
-  const { onStartBot, onStopBot, isRunning, config } = useMangoContext()
+  const navigate = useNavigate()
+  const { onStartBot, onStopBot, isRunning, config, selectedAccount } = useMangoContext()
   const { wallet } = useSolanaContext()
   const [baseSymbol, setBaseSymbol] = useState('SOL')
   const [priceUpperCap, setPriceUpperCap] = useState('')
@@ -85,9 +87,15 @@ export default function ActionPanel() {
         </div>
       </div>
       <div className="w-full mt-4">
-        <Button className="w-full" onClick={onSubmit}>
-          {isRunning ? 'Stop Bot' : 'Start Bot'}
-        </Button>
+        {selectedAccount ? (
+          <Button className="w-full" onClick={onSubmit}>
+            {isRunning ? 'Stop Bot' : 'Start Bot'}
+          </Button>
+        ) : (
+          <Button className="w-full" onClick={() => navigate('/connect-wallet')}>
+            {wallet ? 'Select Account' : 'Connect Wallet'}
+          </Button>
+        )}
       </div>
     </div>
   )

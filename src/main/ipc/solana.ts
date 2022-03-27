@@ -19,12 +19,6 @@ export function getKeypair() {
   return Keypair.fromSecretKey(base58.decode(pk))
 }
 
-export function mustGetKeypair() {
-  const keypair = getKeypair()
-  if (!keypair) throw new Error('not found keypair')
-  return keypair
-}
-
 export function getAccount() {
   const pk = getPrivateKey()
   if (!pk) {
