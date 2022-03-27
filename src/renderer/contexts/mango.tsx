@@ -13,11 +13,11 @@ export interface IOrder {
 }
 
 interface IMangoContext {
-  accounts: PlainMangoAccount[] | null
-  selectedAccount: PlainMangoAccount | null
-  orders: IOrder[] | null
+  accounts?: PlainMangoAccount[]
+  selectedAccount?: PlainMangoAccount
+  orders?: IOrder[]
   isRunning: boolean
-  config: GridBotConfig | null
+  config?: GridBotConfig
   onRefreshAccounts: () => void
   onSelectAccount: (account: PlainMangoAccount) => void
   onStartBot: (config: GridBotConfig) => void
@@ -74,7 +74,7 @@ export function MangoContextProvider({ children }: { children: any }) {
         }
       }
     },
-    [setAccounts, setSelected, setDefaultAccountName, defaultAccountName]
+    [defaultAccountName, onSelectAccount, setDefaultAccountName]
   )
 
   useRecursiveTimeout(async () => {
@@ -119,7 +119,7 @@ export function MangoContextProvider({ children }: { children: any }) {
   }, [ipc])
 
   const onRefreshAccounts = useCallback(() => {
-    setAccounts(null)
+    setAccounts(undefined)
     ipc.send(IPC_MANGO_RUN_CHANNEL, {
       type: 'fetch-accounts',
     })
