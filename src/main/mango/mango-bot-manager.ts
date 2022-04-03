@@ -87,6 +87,7 @@ class MangoBotManager {
   }
 
   async startBot(config: GridBotConfig) {
+    console.info('MangoBotManager | startBot')
     const symbol = config.baseSymbol
     await this.initMarket(symbol)
     try {
@@ -109,9 +110,11 @@ class MangoBotManager {
     await bot.start()
     this.bots[symbol] = bot
     this.configs[symbol] = config
+    console.info('start bot successfully')
   }
 
   async stopBot(symbol: string) {
+    console.info('MangoBotManager | stopBot')
     const bot = this.bots[symbol]
     if (!bot) {
       console.error('no bot found for symbol:', symbol)
@@ -121,6 +124,7 @@ class MangoBotManager {
     delete this.bots[symbol]
     delete this.markets[symbol]
     delete this.configs[symbol]
+    console.info('MangoBotManager | stop bot successfully')
   }
 
   /**

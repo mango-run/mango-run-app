@@ -16,7 +16,7 @@ interface IMangoContext {
   accounts?: PlainMangoAccount[]
   selectedAccount?: PlainMangoAccount
   orders?: IOrder[]
-  isRunning: boolean
+  isRunning?: boolean
   config?: GridBotConfig
   onRefreshAccounts: () => void
   onSelectAccount: (account: PlainMangoAccount) => void
@@ -32,7 +32,7 @@ export function MangoContextProvider({ children }: { children: any }) {
   const [accounts, setAccounts] = useState<PlainMangoAccount[] | undefined>()
   const [selected, setSelected] = useState<PlainMangoAccount | undefined>()
   const [orders, setOrders] = useState<IOrder[] | undefined>()
-  const [isRunning, setIsRunning] = useState(false)
+  const [isRunning, setIsRunning] = useState<boolean | undefined>(false)
   const [config, setConfig] = useState<GridBotConfig | undefined>()
 
   const onSelectAccount = useCallback(
@@ -69,6 +69,16 @@ export function MangoContextProvider({ children }: { children: any }) {
           setDefaultAccountName(message.payload.account.name)
           break
         }
+        case 'grid-bot-started': {
+          setIsRunning(true)
+          setConfig(message.payload.config)
+          break
+        }
+        case 'grid-bot-stopped': {
+          setIsRunning(false)
+          setConfig(undefined)
+          break
+        }
         default: {
           break
         }
@@ -78,16 +88,10 @@ export function MangoContextProvider({ children }: { children: any }) {
   )
 
   useRecursiveTimeout(async () => {
-    const { orders, isRunning, config } = (ipc.get(IPC_MANGO_RUN_CHANNEL, {
+    const { orders } = (ipc.get(IPC_MANGO_RUN_CHANNEL, {
       type: 'get-bot-status',
       payload: { symbol: 'SOL' },
-    }) ?? {}) as {
-      orders: any[]
-      isRunning: boolean
-      config: GridBotConfig
-    }
-    setIsRunning(isRunning)
-    setConfig(config)
+    }) ?? {}) as { orders: any[] }
     const newOrders: IOrder[] =
       orders?.map((i: any) => ({
         market: 'SOL',
@@ -128,6 +132,7 @@ export function MangoContextProvider({ children }: { children: any }) {
   const onStartBot = useCallback(
     (config: GridBotConfig) => {
       console.info('start mango bot:', config)
+      setIsRunning(undefined)
       ipc.send(IPC_MANGO_RUN_CHANNEL, {
         type: 'start-grid-bot',
         payload: { config },
@@ -138,6 +143,7 @@ export function MangoContextProvider({ children }: { children: any }) {
 
   const onStopBot = useCallback(() => {
     console.info('stop mango bot')
+    setIsRunning(undefined)
     ipc.send(IPC_MANGO_RUN_CHANNEL, {
       type: 'stop-grid-bot',
       payload: { symbol: 'SOL' },

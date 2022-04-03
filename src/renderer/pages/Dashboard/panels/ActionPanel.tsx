@@ -79,7 +79,7 @@ export default function ActionPanel() {
           <div className="mb-1">Invest</div>
           <Input
             className=""
-            suffix="USDT"
+            suffix={baseSymbol}
             disabled={!!config}
             value={config ? formatAmount(config.orderSize * config.orderSize, 0, 2) : totalAmount}
             onChange={(e) => setTotalAmount(e.target.value)}
@@ -88,8 +88,14 @@ export default function ActionPanel() {
       </div>
       <div className="w-full mt-4">
         {selectedAccount ? (
-          <Button className="w-full" onClick={onSubmit}>
-            {isRunning ? 'Stop Bot' : 'Start Bot'}
+          <Button
+            className="w-full"
+            onClick={onSubmit}
+            disabled={isRunning === undefined}
+            loading={isRunning === undefined}
+          >
+            {/* eslint-disable-next-line no-nested-ternary */}
+            {isRunning === undefined ? 'Loading' : isRunning ? 'Stop Bot' : 'Start Bot'}
           </Button>
         ) : (
           <Button className="w-full" onClick={() => navigate('/connect-wallet')}>

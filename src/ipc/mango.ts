@@ -18,9 +18,11 @@ export type MangoMessage =
   | { type: 'accounts-changed'; payload: { accounts: PlainMangoAccount[] } }
   | { type: 'select-account'; payload: { index: number } }
   | { type: 'account-selected'; payload: { account: PlainMangoAccount } }
-  | { type: 'start-grid-bot'; payload: { config: GridBotConfig } }
-  | { type: 'stop-grid-bot'; payload: { symbol: string } }
   | { type: 'get-bot-status'; payload: { symbol: string } }
+  | { type: 'start-grid-bot'; payload: { config: GridBotConfig } }
+  | { type: 'grid-bot-started'; payload: { config: GridBotConfig } }
+  | { type: 'stop-grid-bot'; payload: { symbol: string } }
+  | { type: 'grid-bot-stopped' }
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

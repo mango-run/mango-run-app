@@ -5,7 +5,9 @@ import { getKeypair } from './solana'
 
 async function initMain(ipcMain: IpcMain) {
   ipcMain.on(IPC_MANGO_RUN_CHANNEL, async (e, message) => {
-    console.info('on receive ipc message:', message)
+    if (message.type !== 'get-bot-status') {
+      console.info('on receive ipc message:', message)
+    }
     switch (message.type) {
       case 'fetch-accounts': {
         const kp = getKeypair()
@@ -42,11 +44,18 @@ async function initMain(ipcMain: IpcMain) {
 
       case 'start-grid-bot': {
         await mangoBotManager.startBot(message.payload.config)
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, {
+          type: 'grid-bot-started',
+          payload: { config: message.payload.config },
+        })
         return
       }
 
       case 'stop-grid-bot': {
         await mangoBotManager.stopBot(message.payload.symbol)
+        e.sender.send(IPC_MANGO_RUN_CHANNEL, {
+          type: 'grid-bot-stopped',
+        })
         return
       }
 
