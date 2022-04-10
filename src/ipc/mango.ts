@@ -23,6 +23,7 @@ export type MangoMessage =
   | { type: 'grid-bot-started'; payload: { config: GridBotConfig } }
   | { type: 'stop-grid-bot'; payload: { symbol: string } }
   | { type: 'grid-bot-stopped' }
+  | { type: 'on-error'; payload: { error: Error } }
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

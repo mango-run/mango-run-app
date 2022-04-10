@@ -1,6 +1,7 @@
 import { IPC_MANGO_RUN_CHANNEL } from 'ipc/channels'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useRecursiveTimeout } from '@funcblock/dapp-sdk'
+import { notification } from 'antd'
 import { GridBotConfig, MangoMessage, PlainMangoAccount } from '../../ipc/mango'
 import useStore from '../hooks/useStore'
 
@@ -85,6 +86,15 @@ export function MangoContextProvider({ children }: { children: any }) {
         case 'grid-bot-stopped': {
           setIsRunning(false)
           setConfig(undefined)
+          break
+        }
+        case 'on-error': {
+          const { error } = message.payload
+          console.error(error)
+          notification.error({
+            message: `Bot Error: ${error.name}`,
+            description: error.message,
+          })
           break
         }
         default: {
