@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import ActionPanel from './panels/ActionPanel'
-import HistoryPanel from './panels/HistoryPanel'
-import PositionsPanel from './panels/PositionsPanel'
 import OrdersPanel from './panels/OrdersPanel'
+import PositionsPanel from './panels/PositionsPanel'
 
 function TabItem({ title, isActive, onClick }: { title: string; isActive: boolean; onClick: any }) {
   const className = isActive ? 'border-primary text-primary' : ''
@@ -25,12 +24,10 @@ export default function Dashboard() {
         <div className="flex items-center">
           <TabItem title="Orders" isActive={activeTab === 0} onClick={() => setActiveTab(0)} />
           <TabItem title="Positions" isActive={activeTab === 1} onClick={() => setActiveTab(1)} />
-          <TabItem title="History" isActive={activeTab === 2} onClick={() => setActiveTab(2)} />
         </div>
         <div>
           {activeTab === 0 && <OrdersPanel />}
           {activeTab === 1 && <PositionsPanel />}
-          {activeTab === 2 && <HistoryPanel />}
         </div>
       </div>
     </div>

@@ -26,6 +26,7 @@ async function initMain(ipcMain: IpcMain) {
         const { symbol } = message.payload
         e.returnValue = {
           orders: mangoBotManager.getReceipts(symbol),
+          balances: await mangoBotManager.getBalances(),
           isRunning: mangoBotManager.isBotRunning(symbol),
           config: mangoBotManager.getConfig(symbol),
         }

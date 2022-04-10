@@ -12,10 +12,17 @@ export interface IOrder {
   value: number
 }
 
+export interface IPosition {
+  market: string
+  side: 'Long' | 'Short'
+  amount: number
+}
+
 interface IMangoContext {
   accounts?: PlainMangoAccount[]
   selectedAccount?: PlainMangoAccount
   orders?: IOrder[]
+  positions?: IPosition[]
   isRunning?: boolean
   config?: GridBotConfig
   onRefreshAccounts: () => void
@@ -32,6 +39,7 @@ export function MangoContextProvider({ children }: { children: any }) {
   const [accounts, setAccounts] = useState<PlainMangoAccount[] | undefined>()
   const [selected, setSelected] = useState<PlainMangoAccount | undefined>()
   const [orders, setOrders] = useState<IOrder[] | undefined>()
+  const [positions, setPositions] = useState<IPosition[] | undefined>()
   const [isRunning, setIsRunning] = useState<boolean | undefined>(false)
   const [config, setConfig] = useState<GridBotConfig | undefined>()
 
@@ -88,10 +96,10 @@ export function MangoContextProvider({ children }: { children: any }) {
   )
 
   useRecursiveTimeout(async () => {
-    const { orders } = (ipc.get(IPC_MANGO_RUN_CHANNEL, {
+    const { orders, balances } = (ipc.get(IPC_MANGO_RUN_CHANNEL, {
       type: 'get-bot-status',
       payload: { symbol: 'SOL' },
-    }) ?? {}) as { orders: any[] }
+    }) ?? {}) as { orders: any[]; balances: any[] }
     const newOrders: IOrder[] =
       orders?.map((i: any) => ({
         market: 'SOL',
@@ -101,6 +109,15 @@ export function MangoContextProvider({ children }: { children: any }) {
         value: i.order.price * i.order.size,
       })) ?? []
     setOrders(newOrders)
+    const newPositions: IPosition[] = balances
+      ?.filter((i) => !!i.balance)
+      ?.map((i) => ({
+        market: i.symbol,
+        side: i.balance.base > 0 ? 'Long' : 'Short',
+        amount: i.balance.base,
+      }))
+    setPositions(newPositions)
+    console.log(balances)
   }, 3000)
 
   // subscribe MangoRun channel
@@ -156,6 +173,7 @@ export function MangoContextProvider({ children }: { children: any }) {
         accounts,
         selectedAccount: selected,
         orders,
+        positions,
         isRunning,
         config,
         onRefreshAccounts,

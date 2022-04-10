@@ -89,13 +89,15 @@ class MangoBotManager {
   async startBot(config: GridBotConfig) {
     console.info('MangoBotManager | startBot')
     const symbol = config.baseSymbol
-    await this.initMarket(symbol)
+    const market = this.markets[symbol]
+    if (!market) {
+      throw new Error('Market is not initialized')
+    }
     try {
-      await this.markets[symbol].cancelAllOrders()
+      await market.cancelAllOrders()
     } catch (error) {
       console.error(error)
     }
-    const market = this.markets[symbol]
     const signal = new NaiveGridSignal(
       {
         market,
@@ -136,7 +138,6 @@ class MangoBotManager {
   }
 
   getReceipts(symbol: string) {
-    this.initMarket(symbol).catch(console.error)
     return this.markets[symbol]?.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending)
   }
 
@@ -144,8 +145,18 @@ class MangoBotManager {
     return this.configs[symbol]
   }
 
-  getBalance(symbol: string) {
-    return this.markets[symbol].balance()
+  async getBalances() {
+    const symbols = ['SOL']
+    const balances = await Promise.all(
+      symbols.map((i) => {
+        this.initMarket(i).catch(console.error)
+        return this.markets[i]?.balance()
+      })
+    )
+    return symbols.map((i, index) => ({
+      symbol: i,
+      balance: balances[index],
+    }))
   }
 
   isBotRunning(symbol: string) {
