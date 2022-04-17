@@ -28,7 +28,7 @@ class MangoBotManager {
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.mangoGroupConfig = new Config(IDS).getGroup('mainnet', 'mainnet.1')!
-    this.connection = new Connection('https://mango.genesysgo.net/', {
+    this.connection = new Connection('https://solana-api.projectserum.com', {
       httpHeaders: {
         origin: 'https://trade.mango.markets',
         referer: 'https://trade.mango.markets/',
@@ -138,7 +138,12 @@ class MangoBotManager {
   }
 
   getReceipts(symbol: string) {
-    return this.markets[symbol]?.receipts(ReceiptStatus.Placed, ReceiptStatus.PlacePending)
+    return this.markets[symbol]?.receipts(
+      ReceiptStatus.PlacePending,
+      ReceiptStatus.CancelPending,
+      ReceiptStatus.Placed,
+      ReceiptStatus.Canceled
+    )
   }
 
   getConfig(symbol: string) {

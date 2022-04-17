@@ -4,6 +4,7 @@ import { useRecursiveTimeout } from '@funcblock/dapp-sdk'
 import { notification } from 'antd'
 import { GridBotConfig, MangoMessage, PlainMangoAccount } from '../../ipc/mango'
 import useStore from '../hooks/useStore'
+import { MangoOrderStatus } from '../models/MangoOrderStatus'
 
 export interface IOrder {
   market: string
@@ -11,6 +12,7 @@ export interface IOrder {
   price: number
   size: number
   value: number
+  status: string
 }
 
 export interface IPosition {
@@ -117,6 +119,7 @@ export function MangoContextProvider({ children }: { children: any }) {
         size: i.order.size,
         price: i.order.price,
         value: i.order.price * i.order.size,
+        status: MangoOrderStatus[i.status],
       })) ?? []
     setOrders(newOrders)
     const newPositions: IPosition[] = balances
@@ -127,7 +130,6 @@ export function MangoContextProvider({ children }: { children: any }) {
         amount: i.balance.base,
       }))
     setPositions(newPositions)
-    console.log(balances)
   }, 3000)
 
   // subscribe MangoRun channel
