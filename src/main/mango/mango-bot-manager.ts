@@ -84,6 +84,10 @@ class MangoBotManager {
     )
     await market.initialize()
     this.markets[symbol] = market
+
+    // error - the orignal error caught
+    // details - the context description when occuring error
+    // market.on('error', ({ error, details }) => {})
   }
 
   async startBot(config: GridBotConfig) {
