@@ -122,8 +122,10 @@ class MangoBotManager {
     )
     const bot = new Bot(market, signal, logger)
     // bot status
-    // message - status message
-    // bot.on('status', ({ message }: any) => { console.log(message) })
+    // BotStatus - { status, message }
+    // status - status string ex: starting, stopping
+    // message - status detail
+    // bot.getBotStatus() -> BotStatus
 
     await bot.start()
     this.bots[symbol] = bot
