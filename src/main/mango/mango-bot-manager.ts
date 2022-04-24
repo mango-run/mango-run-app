@@ -24,6 +24,7 @@ class MangoBotManager {
   bots: { [symbol: string]: Bot } = {}
   markets: { [symbol: string]: MangoPerpMarket } = {}
   configs: { [symbol: string]: GridBotConfig } = {}
+  onError: (error: Error) => void = () => {}
 
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -37,6 +38,10 @@ class MangoBotManager {
       },
     })
     this.mangoClient = new MangoClient(this.connection, this.mangoGroupConfig.mangoProgramId)
+  }
+
+  setOnError(onError: (error: Error) => void) {
+    this.onError = onError
   }
 
   async init() {
@@ -87,7 +92,10 @@ class MangoBotManager {
 
     // error - the orignal error caught
     // details - the context description when occuring error
-    // market.on('error', ({ error, details }) => {})
+    market.on('error', ({ error, details }: any) => {
+      console.error('market onError', error, details)
+      this.onError(error)
+    })
   }
 
   async startBot(config: GridBotConfig) {
@@ -100,7 +108,7 @@ class MangoBotManager {
     try {
       await market.cancelAllOrders()
     } catch (error) {
-      console.error(error)
+      console.error('cancelAllOrders failed', error)
     }
     const signal = new NaiveGridSignal(
       {
@@ -127,10 +135,10 @@ class MangoBotManager {
       return
     }
     await bot.stop()
+    console.info('MangoBotManager | stop bot successfully')
     delete this.bots[symbol]
     delete this.markets[symbol]
     delete this.configs[symbol]
-    console.info('MangoBotManager | stop bot successfully')
   }
 
   /**

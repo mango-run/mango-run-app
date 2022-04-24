@@ -68,6 +68,12 @@ async function initMain(ipcMain: IpcMain) {
     if (message.type !== 'get-bot-status') {
       console.info('on receive ipc message:', message)
     }
+    mangoBotManager.setOnError((error: Error) => {
+      event.sender.send(IPC_MANGO_RUN_CHANNEL, {
+        type: 'on-error',
+        payload: { error },
+      })
+    })
     try {
       await handleEvent(event, message)
     } catch (error) {
