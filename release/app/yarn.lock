@@ -48,10 +48,10 @@
     "@ethersproject/logger" "^5.5.0"
     hash.js "1.1.7"
 
-"@mango-run/core@^0.0.20":
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/@mango-run/core/-/core-0.0.20.tgz#624eaa5b20b93dc5e9e39f9dc091c0c46aba982f"
-  integrity sha512-BKv0o511Xc0l1ToRAWRyIiA5ymidLLgoiJUZ0k47GEV9lkYCcaUWY7mIcSeO/SLOtZrCyNCyNIzP8/aZLr3hqA==
+"@mango-run/core@^0.0.23":
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/@mango-run/core/-/core-0.0.23.tgz#6f1dc6741efcd1b10026892a6df1c83eb7a96f7a"
+  integrity sha512-lZ+ofCga49oseb774iwOpMnq8vUiNCmEbdc+fhZoMqcXHtU15Tv+7/ZFSXGGcpMUJS/1xC+GxJ1tw5gLgsLcLQ==
   dependencies:
     bn.js "^5.2.0"
     bs58 "^5.0.0"
