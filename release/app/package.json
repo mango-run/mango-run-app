@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.4.1",
-    "@mango-run/core": "^0.0.24",
+    "@mango-run/core": "^0.0.25",
     "@solana/web3.js": "^1.37.0",
     "bs58": "^5.0.0"
   }
